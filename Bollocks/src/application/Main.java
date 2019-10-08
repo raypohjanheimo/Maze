@@ -3,11 +3,13 @@ package application;
 
 import java.util.HashMap;
 
-
+import javafx.geometry.Bounds;
 import javafx.geometry.Point2D;
 import java.util.ArrayList;
 
 import javafx.application.Application;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.stage.Stage;
 import javafx.scene.Node;
 import javafx.scene.Scene;
@@ -16,11 +18,16 @@ import javafx.scene.paint.Color;
 import javafx.scene.paint.CycleMethod;
 import javafx.scene.paint.LinearGradient;
 import javafx.scene.paint.Stop;
+import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.Shape;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import javafx.animation.AnimationTimer;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
+import javafx.util.Duration;
+
 
 
 public class Main extends Application {
@@ -37,8 +44,12 @@ public class Main extends Application {
 	
 	private Node hero;
 	private int levelWidth;
-	
+
 	private void initGui() {
+		
+		
+
+		
 		//gradient background
 		LinearGradient lg1 = new LinearGradient(
 				    0, // start X 
@@ -94,6 +105,46 @@ public class Main extends Application {
 		  ((Shape) hero).setFill(lg2);
 		  
 	      root.getChildren().addAll(background, gamePlatform);
+	      
+			Circle ball = new Circle(10, Color.DARKSLATEBLUE);
+		    ball.relocate(50,50);
+
+	        root.getChildren().add(ball);
+
+	        Timeline timeline = new Timeline(new KeyFrame(Duration.millis(20), new EventHandler<ActionEvent>() {
+	        	double dx = 7; //Step on x or velocity
+	        	double dy = 3; //Step on y
+	        	
+	            @Override
+	            public void handle(ActionEvent t) {
+	            	//move the ball
+	            	ball.setLayoutX(ball.getLayoutX() + dx);
+	            	ball.setLayoutY(ball.getLayoutY() + dy);
+
+	                Bounds bounds = root.getBoundsInLocal();
+	                
+	                //If the ball reaches the left or right border make the step negative
+	                if(ball.getLayoutX() <= (bounds.getMinX() + ball.getRadius()) || 
+	                        ball.getLayoutX() >= (bounds.getMaxX() - ball.getRadius()) ){
+
+	                	dx = -dx;
+
+	                }
+
+	                //If the ball reaches the bottom or top border make the step negative
+	                if((ball.getLayoutY() >= (bounds.getMaxY() - ball.getRadius())) || 
+	                        (ball.getLayoutY() <= (bounds.getMinY() + ball.getRadius()))){
+
+	                	dy = -dy;
+
+	                }
+	                
+	            }
+	        }));
+	        
+	        timeline.setCycleCount(Timeline.INDEFINITE);
+	        timeline.play();
+	      
 	}	
 	
 	//game logic, when keys are pressed call vertical or horizontal move methods. This method is looped through with animation timer.
